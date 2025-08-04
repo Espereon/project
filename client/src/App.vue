@@ -1,10 +1,10 @@
 <script setup>
-import HelloWorld from "./components/HelloWorld.vue";
+import Edit from "./components/Edit.vue";
 </script>
 
 <template>
   <div>
-    <HelloWorld msg="Vite + Vue" />
+    <Edit msg="Vite + Vue" />
   </div>
 </template>
 
