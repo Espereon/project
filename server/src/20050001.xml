@@ -30,7 +30,7 @@
           <parameter ID="31340">
             <type>STRING</type>
             <length>100</length>
-            <value></value>
+            <value>&#032;</value>
             <target index="3"/>
           </parameter>
           <parameter ID="31341">

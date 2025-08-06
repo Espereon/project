@@ -18,7 +18,7 @@
           <parameter ID="106">
             <type>STRING</type>
             <length>48</length>
-            <value>улица</value>
+            <value>1231</value>
             <target index="1"/>
           </parameter>
           <parameter ID="23902">
@@ -30,13 +30,13 @@
           <parameter ID="31340">
             <type>STRING</type>
             <length>100</length>
-            <value>Имя</value>
+            <value>           123</value>
             <target index="3"/>
           </parameter>
           <parameter ID="31341">
             <type>STRING</type>
             <length>100</length>
-            <value>Бренд</value>
+            <value>123</value>
             <target index="4"/>
           </parameter>
         </pool>
