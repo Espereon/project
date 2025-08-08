@@ -8,6 +8,7 @@ const formData = ref<FormData>({
   name: "",
   brand: "",
   locnumber: "",
+  emitent: "",
 });
 const responseMessage = ref("");
 
@@ -17,6 +18,7 @@ interface FormData {
   name: string;
   brand: string;
   locnumber: string;
+  emitent: string;
 }
 
 const validateFieldLength = (field: string, maxLength: number) =>
@@ -49,12 +51,22 @@ async function submitData() {
   <div class="flex items-center gap-60">
     <div class="center pt-10">
       <form class="grid text-field" @submit.prevent="submitData">
-        <label class="text-field__label" for="locnumber"
-          >Локальный номер<input
-            v-model="formData.locnumber"
-            class="text-field__input"
-            type="text"
-        /></label>
+        <div class="flex gap-10 justify-between">
+          <label class="text-field__label" for="emitent"
+            >Эмитент<input
+              v-model="formData.emitent"
+              class="text-field__input_innem"
+              type="text"
+              maxlength="4"
+          /></label>
+          <label class="text-field__label" for="locnumber"
+            >Локальный номер<input
+              v-model="formData.locnumber"
+              class="text-field__input_innem"
+              type="text"
+              maxlength="4"
+          /></label>
+        </div>
         <label class="text-field__label" for="inn">ИНН:</label><br />
         <input
           class="text-field__input"
@@ -88,7 +100,10 @@ async function submitData() {
           type="text"
           maxlength="24"
         /><br />
-        <button type="submit">Отправить</button>
+        <div class="flex gap-10 justify-center">
+          <button class="btn-new" type="submit">Сгенерировать</button>
+          <button class="btn-new" type="button">Отправить на КС</button>
+        </div>
       </form>
 
       <p>{{ responseMessage }}</p>
@@ -103,7 +118,7 @@ async function submitData() {
       <div>ОКОНЧА 30/03/03 17:00:59</div>
       <div class="flex items-center justify-between">
         <div>Терминал</div>
-        <div>№ {{ formData.locnumber.slice(4, 8) }}</div>
+        <div>№ {{ formData.locnumber }}</div>
       </div>
     </div>
   </div>
@@ -126,6 +141,23 @@ async function submitData() {
 .text-field__input {
   display: block;
   width: 500px;
+  height: calc(2.25rem + 2px);
+  padding: 0.375rem 0.75rem;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #212529;
+  background-color: #fff;
+  background-clip: padding-box;
+  border: 1px solid #bdbdbd;
+  border-radius: 0.25rem;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.text-field__input_innem {
+  display: block;
+  width: 200px;
   height: calc(2.25rem + 2px);
   padding: 0.375rem 0.75rem;
   font-family: inherit;

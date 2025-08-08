@@ -13,7 +13,7 @@ app.use(express.json());
 
 app.post("/api/data", async (req, res) => {
   try {
-    const { inn, street, name, brand, locnubmer } = req.body;
+    const { inn, street, name, brand, locnumber, emitent } = req.body;
     const buffer = await fs.readFile("./src/20050001.xml");
     const originalXml = iconv.decode(buffer, "windows-1251");
     const doc = new DOMParser().parseFromString(originalXml, "application/xml");
@@ -65,7 +65,7 @@ app.post("/api/data", async (req, res) => {
 
     const encodedXml = iconv.encode(updatedXml, "windows-1251");
 
-    await fs.writeFile(`./output/${locnubmer}.xml`, encodedXml);
+    await fs.writeFile(`./output/${emitent}${locnumber}.xml`, encodedXml);
 
     res
       .status(200)
