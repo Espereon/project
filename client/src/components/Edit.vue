@@ -45,6 +45,19 @@ async function submitData() {
     console.error("Error sending data:", error);
   }
 }
+
+async function sharedXml() {
+  try {
+    if (!formData.value.locnumber || !formData.value.emitent) {
+      responseMessage.value = "Не указан локальный номер или эмитент";
+      return;
+    }
+    const response = await axios.post("/api/shared", formData.value);
+    responseMessage.value = response.data.message;
+  } catch (error) {
+    responseMessage.value = "Error sending data.";
+  }
+}
 </script>
 
 <template>
@@ -102,7 +115,9 @@ async function submitData() {
         /><br />
         <div class="flex gap-10 justify-center">
           <button class="btn-new" type="submit">Сгенерировать</button>
-          <button class="btn-new" type="button">Отправить на КС</button>
+          <button @click="sharedXml()" class="btn-new" type="button">
+            Отправить на КС
+          </button>
         </div>
       </form>
 
