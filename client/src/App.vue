@@ -1,10 +1,11 @@
-<script setup>
-import Edit from "./components/Edit.vue";
-</script>
+<script setup></script>
 
 <template>
   <div>
-    <Edit msg="Vite + Vue" />
+    <router-link to="/gazprom">Ссылка на газпром</router-link>
+    <div>
+      <router-view></router-view>
+    </div>
   </div>
 </template>
 
