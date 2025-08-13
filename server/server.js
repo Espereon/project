@@ -101,8 +101,47 @@ async function handleSharedRequest(req, res) {
   }
 }
 
+async function handleSharedGazprom(req, res) {
+  try {
+    const { locnumber, emitent } = req.body;
+
+    if (!locnumber || !emitent) {
+      return res
+        .status(400)
+        .json({ error: "Отсутствует локальный номер или эмитент" });
+    }
+
+    const sourceFile = `${emitent}${locnumber}.xml`;
+    const sourceDirectory = "./gazprom";
+    const destinationDirectory = "./copied_files";
+    const sourcePath = path.join(sourceDirectory, sourceFile);
+    const destinationPath = path.join(destinationDirectory, sourceFile);
+
+    // Проверяем наличие исходного файла
+
+    await fs.access(sourcePath); // Проверяет доступ к файлу
+    res.status(200).json({ message: "Файл найден" });
+  } catch (err) {
+    if (err.code === "ENOENT") {
+      // Файл не найден
+      return res.status(404).json({ error: "Источник не найден" });
+    }
+    throw err; // Любые другие ошибки
+  }
+
+  // Копируем файл
+  //   await fs.copyFile(sourcePath, destinationPath);
+
+  //   res.status(200).json({ message: "Файл успешно скопирован." });
+  // } catch (error) {
+  //   console.error("Ошибка копирования файла:", error.message);
+  //   res.status(500).json({ error: "Ошибка обработки данных." });
+  // }
+}
+
 app.post("/api/data", handleDataProcessing);
 app.post("/api/shared", handleSharedRequest);
+app.post("/api/sharedgazprom", handleSharedGazprom);
 
 app.listen(PORT, () => {
   console.log(`Сервер запущен на порту ${PORT}`);

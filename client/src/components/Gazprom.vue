@@ -19,6 +19,19 @@ interface FormData {
   locnumber: string;
   emitent: string;
 }
+
+async function sharedGazprom() {
+  try {
+    if (!formData.value.locnumber || !formData.value.emitent) {
+      responseMessage.value = "Не указан локальный номер или эмитент";
+      return;
+    }
+    const response = await axios.post("/api/sharedgazprom", formData.value);
+    responseMessage.value = response.data.message;
+  } catch (error) {
+    responseMessage.value = "Error sending data.";
+  }
+}
 </script>
 
 <template>
@@ -43,7 +56,7 @@ interface FormData {
           /></label>
         </div>
         <div>
-          <button>Поиск</button>
+          <button @click="sharedGazprom()">Поиск</button>
           <button>Отправить на КС</button>
         </div>
       </form>
@@ -62,6 +75,7 @@ interface FormData {
           <div>№ {{ formData.locnumber }}</div>
         </div>
       </div>
+      <p>Статус:{{ responseMessage }}</p>
     </div>
   </div>
 </template>
