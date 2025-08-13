@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="windows-1251"?><application name="Petrol Plus6">
+    <version>
+      <value>7.00.72996.0034</value>
+    </version>
+    <platform byte_ordering="Little_Endian"/>
+    <config>
+      <module ID="1">
+        <pool>
+          <pool_header ID="5">
+            <version>3</version>
+          </pool_header>
+          <parameter ID="105">
+            <type>STRING</type>
+            <length>48</length>
+            <value>1234566</value>
+            <target index="0"/>
+          </parameter>
+          <parameter ID="106">
+            <type>STRING</type>
+            <length>48</length>
+            <value>123</value>
+            <target index="1"/>
+          </parameter>
+          <parameter ID="23902">
+            <type>STRING</type>
+            <length>48</length>
+            <value>Чат бот +74952800110</value>
+            <target index="2"/>
+          </parameter>
+          <parameter ID="31340">
+            <type>STRING</type>
+            <length>100</length>
+            <value>          123</value>
+            <target index="3"/>
+          </parameter>
+          <parameter ID="31341">
+            <type>STRING</type>
+            <length>100</length>
+            <value>123</value>
+            <target index="4"/>
+          </parameter>
+        </pool>
+      </module>
+    </config>
+  </application>
