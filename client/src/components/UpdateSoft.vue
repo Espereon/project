@@ -20,7 +20,7 @@ interface FormData {
   emitent: string;
 }
 
-async function searchGazprom() {
+async function generationSoft() {
   try {
     if (!formData.value.locnumber || !formData.value.emitent) {
       responseMessage.value = "Не указан локальный номер или эмитент";
@@ -97,7 +97,6 @@ async function sharedGazprom() {
   }
 }
 </script>
-
 <template>
   <div>
     <div class="flex items-center gap-60">
@@ -123,10 +122,10 @@ async function sharedGazprom() {
           <div class="flex gap-10 justify-center">
             <button
               class="btn-new"
-              @click.prevent="searchGazprom()"
+              @click.prevent="generationSoft()"
               type="button"
             >
-              Поиск
+              Сгенерировать
             </button>
             <button
               class="btn-new"
@@ -140,25 +139,9 @@ async function sharedGazprom() {
           <p>{{ responseMessage }}</p>
         </form>
       </div>
-      <div>
-        <div class="container flex flex-col gap-2">
-          <div>ОТЧЕТ ЗА СМЕНУ</div>
-          <div>{{ formData.name }}</div>
-          <div>ИНН {{ formData.inn }}</div>
-          <div>{{ formData.street }}</div>
-          <div>{{ formData.brand }}</div>
-          <div>НАЧАЛО 30/03/03 9:00:01</div>
-          <div>КОНЕЦ 30/03/03 17:00:59</div>
-          <div class="flex items-center justify-between">
-            <div>Терминал</div>
-            <div>№ {{ formData.locnumber }}</div>
-          </div>
-        </div>
-      </div>
     </div>
   </div>
 </template>
-
 <style scoped>
 *,
 *::before,

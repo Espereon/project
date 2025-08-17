@@ -37,12 +37,29 @@ async function submitData() {
       responseMessage.value = "Данные введены некорректно!";
       return;
     }
+
+    console.log("Отправляем данные:", formData.value);
     const response = await axios.post("/api/data", formData.value);
     responseMessage.value = response.data.message;
     console.log("Server response:", response.data);
-  } catch (error) {
-    responseMessage.value = "Error sending data.";
+  } catch (error: any) {
     console.error("Error sending data:", error);
+
+    if (error.response) {
+      // Сервер ответил с ошибкой
+      console.log("Статус ошибки:", error.response.status);
+      console.log("Данные ошибки:", error.response.data);
+      responseMessage.value = `Ошибка сервера: ${
+        error.response.data.error || error.response.statusText
+      }`;
+    } else if (error.request) {
+      // Запрос отправлен, но ответа нет
+      responseMessage.value =
+        "Сервер не отвечает. Проверьте, запущен ли сервер на порту 3001";
+    } else {
+      // Ошибка настройки запроса
+      responseMessage.value = `Ошибка: ${error.message}`;
+    }
   }
 }
 
@@ -54,8 +71,24 @@ async function sharedXml() {
     }
     const response = await axios.post("/api/shared", formData.value);
     responseMessage.value = response.data.message;
-  } catch (error) {
-    responseMessage.value = "Error sending data.";
+  } catch (error: any) {
+    console.error("Error sending data:", error);
+
+    if (error.response) {
+      // Сервер ответил с ошибкой
+      console.log("Статус ошибки:", error.response.status);
+      console.log("Данные ошибки:", error.response.data);
+      responseMessage.value = `Ошибка сервера: ${
+        error.response.data.error || error.response.statusText
+      }`;
+    } else if (error.request) {
+      // Запрос отправлен, но ответа нет
+      responseMessage.value =
+        "Сервер не отвечает. Проверьте, запущен ли сервер на порту 3001";
+    } else {
+      // Ошибка настройки запроса
+      responseMessage.value = `Ошибка: ${error.message}`;
+    }
   }
 }
 </script>
@@ -104,7 +137,8 @@ async function sharedXml() {
           v-model="formData.name"
           type="text"
           maxlength="24"
-        /><br />
+        />
+        <br />
         <label class="text-field__label" for="brand">Брэнд:</label><br />
         <input
           class="text-field__input"
@@ -149,10 +183,12 @@ async function sharedXml() {
 .text-field {
   margin-bottom: 1rem;
 }
+
 .text-field__label {
   display: block;
   margin-bottom: 0.25rem;
 }
+
 .text-field__input {
   display: block;
   width: 500px;
@@ -188,12 +224,20 @@ async function sharedXml() {
 }
 
 .btn-new {
-  width: 200px;
-  height: 50px;
-  border-radius: 10px;
+  display: inline-block;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #0b63f6;
   color: white;
-  transition: 0.2s linear;
-  background: #0b63f6;
+  text-decoration: none;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  min-width: 180px;
+  text-align: center;
 }
 
 .btn-new:hover {
