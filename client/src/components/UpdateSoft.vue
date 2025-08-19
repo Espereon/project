@@ -27,59 +27,15 @@ async function generationSoft() {
       return;
     }
 
-    responseMessage.value = "Поиск файла...";
-    console.log("Отправляем запрос:", formData.value);
+    responseMessage.value = "Геренация ПО...";
+    console.log("Отправляем запрос на генерацию:", formData.value);
 
-    const response = await axios.post("/api/searchgazprom", formData.value);
-    console.log("Ответ сервера:", response.data);
-
-    if (response.data.data) {
-      // Заполняем форму найденными данными
-      formData.value.inn = response.data.data.inn || "";
-      formData.value.street = response.data.data.street || "";
-      formData.value.name = response.data.data.name || "";
-      formData.value.brand = response.data.data.brand || "";
-
-      responseMessage.value = response.data.message;
-      console.log("Форма заполнена данными:", formData.value);
-    } else {
-      responseMessage.value = response.data.message;
-    }
-  } catch (error: any) {
-    console.error("Ошибка при поиске:", error);
-
-    if (error.response) {
-      console.log("Статус ошибки:", error.response.status);
-      console.log("Данные ошибки:", error.response.data);
-      responseMessage.value = `Ошибка: ${
-        error.response.data.error || error.response.statusText
-      }`;
-    } else if (error.request) {
-      console.log("Запрос отправлен, но ответа нет");
-      responseMessage.value = "Ошибка сети: сервер не отвечает";
-    } else {
-      console.log("Ошибка настройки запроса:", error.message);
-      responseMessage.value = `Ошибка: ${error.message}`;
-    }
-  }
-}
-
-async function sharedGazprom() {
-  try {
-    if (!formData.value.locnumber || !formData.value.emitent) {
-      responseMessage.value = "Не указан локальный номер или эмитент";
-      return;
-    }
-
-    responseMessage.value = "Копирование файла...";
-    console.log("Отправляем запрос на копирование:", formData.value);
-
-    const response = await axios.post("/api/sharedgazprom", formData.value);
+    const response = await axios.post("/api/generationSoft", formData.value);
     console.log("Ответ сервера:", response.data);
 
     responseMessage.value = response.data.message;
   } catch (error: any) {
-    console.error("Ошибка при копировании:", error);
+    console.error("Ошибка при генерации:", error);
 
     if (error.response) {
       console.log("Статус ошибки:", error.response.status);
@@ -96,6 +52,39 @@ async function sharedGazprom() {
     }
   }
 }
+
+// async function sharedGazprom() {
+//   try {
+//     if (!formData.value.locnumber || !formData.value.emitent) {
+//       responseMessage.value = "Не указан локальный номер или эмитент";
+//       return;
+//     }
+
+//     responseMessage.value = "Копирование файла...";
+//     console.log("Отправляем запрос на копирование:", formData.value);
+
+//     const response = await axios.post("/api/sharedgazprom", formData.value);
+//     console.log("Ответ сервера:", response.data);
+
+//     responseMessage.value = response.data.message;
+//   } catch (error: any) {
+//     console.error("Ошибка при копировании:", error);
+
+//     if (error.response) {
+//       console.log("Статус ошибки:", error.response.status);
+//       console.log("Данные ошибки:", error.response.data);
+//       responseMessage.value = `Ошибка: ${
+//         error.response.data.error || error.response.statusText
+//       }`;
+//     } else if (error.request) {
+//       console.log("Запрос отправлен, но ответа нет");
+//       responseMessage.value = "Ошибка сети: сервер не отвечает";
+//     } else {
+//       console.log("Ошибка настройки запроса:", error.message);
+//       responseMessage.value = `Ошибка: ${error.message}`;
+//     }
+//   }
+// }
 </script>
 <template>
   <div>

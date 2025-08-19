@@ -205,10 +205,56 @@ async function handleSharedGazprom(req, res) {
     }
 
     // Создаем директорию назначения рекурсивно
-    await fs.mkdir(destinationDirectory, { recursive: true });
+    // await fs.mkdir(destinationDirectory, { recursive: true });
 
     // Копируем файл
     await fs.copyFile(sourcePath, destinationPath);
+
+    res.status(200).json({ message: "Файл успешно скопирован." });
+  } catch (error) {
+    console.error("Ошибка копирования файла:", error.message);
+    res.status(500).json({ error: "Ошибка обработки данных." });
+  }
+}
+
+async function handleGenerationSoft(req, res) {
+  try {
+    const { locnumber, emitent } = req.body;
+
+    if (!locnumber || !emitent) {
+      return res
+        .status(400)
+        .json({ error: "Отсутствует локальный номер или эмитент" });
+    }
+    const sourceFile = "soft.xml";
+    const sourceFolder = "./src/soft";
+    const sourceDirectory = "./src";
+    const destinationDirectory = "./output_soft";
+    const sourcePath = path.join(sourceDirectory, sourceFile);
+    const sourcePathFolder = path.join(sourceDirectory, sourceFolder);
+    const destinationPathXml = path.join(
+      destinationDirectory,
+      `${emitent}${locnumber}s.xml`
+    );
+    const destinationPathFolder = path.join(
+      destinationDirectory,
+      `${emitent}${locnumber}s`
+    );
+    try {
+      await fs.access(sourcePath);
+    } catch (err) {
+      if (err.code === "ENOENT") {
+        return res.status(404).json({ error: "Источник не найден" });
+      }
+      throw err;
+    }
+
+    // Создаем директорию назначения рекурсивно
+    // await fs.mkdir(destinationDirectory, { recursive: true });
+
+    // Копируем файл
+    await fs.copyFile(sourcePath, destinationPathXml);
+    await fs.copyFile(sourcePathFolder, destinationPathFolder);
 
     res.status(200).json({ message: "Файл успешно скопирован." });
   } catch (error) {
@@ -221,6 +267,7 @@ app.post("/api/data", handleDataProcessing);
 app.post("/api/shared", handleSharedRequest);
 app.post("/api/searchgazprom", searchGazprom);
 app.post("/api/sharedgazprom", handleSharedGazprom);
+app.post("/api/generationSoft", handleGenerationSoft);
 
 // Тестовый endpoint для проверки подключения
 
