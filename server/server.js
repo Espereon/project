@@ -119,7 +119,7 @@ async function handleSharedRequest(req, res) {
   }
 }
 
-async function searchGazprom(req, res) {
+async function handleSearchGazprom(req, res) {
   try {
     const { locnumber, emitent } = req.body;
 
@@ -203,11 +203,6 @@ async function handleSharedGazprom(req, res) {
       }
       throw err;
     }
-
-    // Создаем директорию назначения рекурсивно
-    // await fs.mkdir(destinationDirectory, { recursive: true });
-
-    // Копируем файл
     await fs.copyFile(sourcePath, destinationPath);
 
     res.status(200).json({ message: "Файл успешно скопирован." });
@@ -227,7 +222,7 @@ async function handleGenerationSoft(req, res) {
         .json({ error: "Отсутствует локальный номер или эмитент" });
     }
     const sourceFile = "soft.xml";
-    const sourceFolder = "./src/soft";
+    const sourceFolder = "./soft";
     const sourceDirectory = "./src";
     const destinationDirectory = "./output_soft";
     const sourcePath = path.join(sourceDirectory, sourceFile);
@@ -242,6 +237,7 @@ async function handleGenerationSoft(req, res) {
     );
     try {
       await fs.access(sourcePath);
+      await fs.access(sourcePathFolder);
     } catch (err) {
       if (err.code === "ENOENT") {
         return res.status(404).json({ error: "Источник не найден" });
@@ -249,14 +245,13 @@ async function handleGenerationSoft(req, res) {
       throw err;
     }
 
-    // Создаем директорию назначения рекурсивно
-    // await fs.mkdir(destinationDirectory, { recursive: true });
-
-    // Копируем файл
+    // Копируем XML файл
     await fs.copyFile(sourcePath, destinationPathXml);
-    await fs.copyFile(sourcePathFolder, destinationPathFolder);
 
-    res.status(200).json({ message: "Файл успешно скопирован." });
+    // Копируем папку с новым названием
+    await fs.cp(sourcePathFolder, destinationPathFolder, { recursive: true });
+
+    res.status(200).json({ message: "Файл и папка успешно скопированы." });
   } catch (error) {
     console.error("Ошибка копирования файла:", error.message);
     res.status(500).json({ error: "Ошибка обработки данных." });
@@ -265,9 +260,10 @@ async function handleGenerationSoft(req, res) {
 
 app.post("/api/data", handleDataProcessing);
 app.post("/api/shared", handleSharedRequest);
-app.post("/api/searchgazprom", searchGazprom);
+app.post("/api/searchgazprom", handleSearchGazprom);
 app.post("/api/sharedgazprom", handleSharedGazprom);
 app.post("/api/generationSoft", handleGenerationSoft);
+app.post("/api/sharedSoft", handleSharedSoft);
 
 // Тестовый endpoint для проверки подключения
 

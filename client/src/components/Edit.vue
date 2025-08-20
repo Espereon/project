@@ -49,9 +49,8 @@ async function submitData() {
       // Сервер ответил с ошибкой
       console.log("Статус ошибки:", error.response.status);
       console.log("Данные ошибки:", error.response.data);
-      responseMessage.value = `Ошибка сервера: ${
-        error.response.data.error || error.response.statusText
-      }`;
+      responseMessage.value = `Ошибка сервера: ${error.response.data.error || error.response.statusText
+        }`;
     } else if (error.request) {
       // Запрос отправлен, но ответа нет
       responseMessage.value =
@@ -78,9 +77,8 @@ async function sharedXml() {
       // Сервер ответил с ошибкой
       console.log("Статус ошибки:", error.response.status);
       console.log("Данные ошибки:", error.response.data);
-      responseMessage.value = `Ошибка сервера: ${
-        error.response.data.error || error.response.statusText
-      }`;
+      responseMessage.value = `Ошибка сервера: ${error.response.data.error || error.response.statusText
+        }`;
     } else if (error.request) {
       // Запрос отправлен, но ответа нет
       responseMessage.value =
@@ -98,55 +96,21 @@ async function sharedXml() {
     <div class="center pt-10">
       <form class="grid text-field" @submit.prevent="submitData">
         <div class="flex gap-10 justify-between">
-          <label class="text-field__label" for="emitent"
-            >Эмитент<input
-              v-model="formData.emitent"
-              class="text-field__input_innem"
-              type="text"
-              maxlength="4"
-          /></label>
-          <label class="text-field__label" for="locnumber"
-            >Локальный номер<input
-              v-model="formData.locnumber"
-              class="text-field__input_innem"
-              type="text"
-              maxlength="4"
-          /></label>
+          <label class="text-field__label" for="emitent">Эмитент<input v-model="formData.emitent"
+              class="text-field__input_innem" type="text" maxlength="4" /></label>
+          <label class="text-field__label" for="locnumber">Локальный номер<input v-model="formData.locnumber"
+              class="text-field__input_innem" type="text" maxlength="4" /></label>
         </div>
         <label class="text-field__label" for="inn">ИНН:</label><br />
-        <input
-          class="text-field__input"
-          id="inn"
-          v-model="formData.inn"
-          type="text"
-          pattern="\d+"
-          maxlength="24"
-        /><br />
+        <input class="text-field__input" id="inn" v-model="formData.inn" type="text" pattern="\d+"
+          maxlength="24" /><br />
         <label class="text-field__label" for="street">Улица:</label><br />
-        <input
-          class="text-field__input"
-          id="street"
-          v-model="formData.street"
-          type="text"
-          maxlength="24"
-        /><br />
+        <input class="text-field__input" id="street" v-model="formData.street" type="text" maxlength="24" /><br />
         <label class="text-field__label" for="name">Имя:</label><br />
-        <input
-          class="text-field__input"
-          id="name"
-          v-model="formData.name"
-          type="text"
-          maxlength="24"
-        />
+        <input class="text-field__input" id="name" v-model="formData.name" type="text" maxlength="24" />
         <br />
         <label class="text-field__label" for="brand">Брэнд:</label><br />
-        <input
-          class="text-field__input"
-          id="brand"
-          v-model="formData.brand"
-          type="text"
-          maxlength="24"
-        /><br />
+        <input class="text-field__input" id="brand" v-model="formData.brand" type="text" maxlength="24" /><br />
         <div class="flex gap-10 justify-center">
           <button class="btn-new" type="submit">Сгенерировать</button>
           <button @click="sharedXml()" class="btn-new" type="button">
