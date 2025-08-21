@@ -53,38 +53,38 @@ async function generationSoft() {
   }
 }
 
-// async function sharedGazprom() {
-//   try {
-//     if (!formData.value.locnumber || !formData.value.emitent) {
-//       responseMessage.value = "Не указан локальный номер или эмитент";
-//       return;
-//     }
+async function sharedSoft() {
+  try {
+    if (!formData.value.locnumber || !formData.value.emitent) {
+      responseMessage.value = "Не указан локальный номер или эмитент";
+      return;
+    }
 
-//     responseMessage.value = "Копирование файла...";
-//     console.log("Отправляем запрос на копирование:", formData.value);
+    responseMessage.value = "Копирование файла...";
+    console.log("Отправляем запрос на копирование:", formData.value);
 
-//     const response = await axios.post("/api/sharedgazprom", formData.value);
-//     console.log("Ответ сервера:", response.data);
+    const response = await axios.post("/api/sharedSoft", formData.value);
+    console.log("Ответ сервера:", response.data);
 
-//     responseMessage.value = response.data.message;
-//   } catch (error: any) {
-//     console.error("Ошибка при копировании:", error);
+    responseMessage.value = response.data.message;
+  } catch (error: any) {
+    console.error("Ошибка при копировании:", error);
 
-//     if (error.response) {
-//       console.log("Статус ошибки:", error.response.status);
-//       console.log("Данные ошибки:", error.response.data);
-//       responseMessage.value = `Ошибка: ${
-//         error.response.data.error || error.response.statusText
-//       }`;
-//     } else if (error.request) {
-//       console.log("Запрос отправлен, но ответа нет");
-//       responseMessage.value = "Ошибка сети: сервер не отвечает";
-//     } else {
-//       console.log("Ошибка настройки запроса:", error.message);
-//       responseMessage.value = `Ошибка: ${error.message}`;
-//     }
-//   }
-// }
+    if (error.response) {
+      console.log("Статус ошибки:", error.response.status);
+      console.log("Данные ошибки:", error.response.data);
+      responseMessage.value = `Ошибка: ${
+        error.response.data.error || error.response.statusText
+      }`;
+    } else if (error.request) {
+      console.log("Запрос отправлен, но ответа нет");
+      responseMessage.value = "Ошибка сети: сервер не отвечает";
+    } else {
+      console.log("Ошибка настройки запроса:", error.message);
+      responseMessage.value = `Ошибка: ${error.message}`;
+    }
+  }
+}
 </script>
 <template>
   <div>
@@ -116,11 +116,7 @@ async function generationSoft() {
             >
               Сгенерировать
             </button>
-            <button
-              class="btn-new"
-              @click.prevent="sharedGazprom()"
-              type="button"
-            >
+            <button class="btn-new" @click.prevent="sharedSoft()" type="button">
               Отправить на КС
             </button>
           </div>

@@ -251,7 +251,44 @@ async function handleGenerationSoft(req, res) {
     // Копируем папку с новым названием
     await fs.cp(sourcePathFolder, destinationPathFolder, { recursive: true });
 
-    res.status(200).json({ message: "Файл и папка успешно скопированы." });
+    res.status(200).json({ message: "Файл и папка успешно сгенерированы" });
+  } catch (error) {
+    console.error("Ошибка копирования файла:", error.message);
+    res.status(500).json({ error: "Ошибка обработки данных." });
+  }
+}
+
+async function handleSharedSoft(req, res) {
+  try {
+    const { locnumber, emitent } = req.body;
+
+    if (!locnumber || !emitent) {
+      return res
+        .status(400)
+        .json({ error: "Отсутствует локальный номер или эмитент" });
+    }
+    const sourceFile = `${emitent}${locnumber}s.xml`;
+    const sourceFolder = `${emitent}${locnumber}s`;
+    const sourceDirectory = "./output_soft";
+    const destinationDirectory = "./cs";
+    const sourcePath = path.join(sourceDirectory, sourceFile);
+    const sourcePathFolder = path.join(sourceDirectory, sourceFolder);
+    const destinationPathXml = path.join(destinationDirectory, sourceFile);
+    const destinationPathFolder = path.join(destinationDirectory, sourceFolder);
+
+    try {
+      await fs.access(sourcePath);
+      await fs.access(sourcePathFolder);
+    } catch (err) {
+      if (err.code === "ENOENT") {
+        return res.status(404).json({ error: "Источник не найден" });
+      }
+      throw err;
+    }
+    await fs.copyFile(sourcePath, destinationPathXml);
+
+    await fs.cp(sourcePathFolder, destinationPathFolder, { recursive: true });
+    res.status(200).json({ message: "Файл и папка успешно скопированы на КС" });
   } catch (error) {
     console.error("Ошибка копирования файла:", error.message);
     res.status(500).json({ error: "Ошибка обработки данных." });
