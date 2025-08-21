@@ -16,31 +16,20 @@ async function handleDataProcessing(req, res) {
   try {
     const { inn, street, name, brand, locnumber, emitent } = req.body;
 
-    if (!inn || !street || !name || !brand || !locnumber || !emitent) {
+    if (!locnumber || !emitent) {
       return res.status(400).json({ error: "Отсутствуют обязательные поля" });
     }
 
     const buffer = await fs.readFile("./src/20050001.xml");
     const originalXml = iconv.decode(buffer, "windows-1251");
     const doc = new DOMParser().parseFromString(originalXml, "application/xml");
+    const formattedName = formatParams(name);
+    const formattedBrand = formatParams(brand);
 
-    // Обновляем параметры XML-документа
-    updateParameter(doc, "//parameter[@ID='105']", inn.trim()); // ИНН
-    updateParameter(doc, "//parameter[@ID='106']", street.trim()); // Улица
-
-    const formattedName = formatName(name);
-    console.log(`Исходное имя: "${name}"`);
-    console.log(`Форматированное имя: "${formattedName}"`);
-    console.log(`Длина форматированного имени: ${formattedName.length}`);
-    console.log(
-      `HTML-сущность в начале: ${
-        formattedName.startsWith("&#032;") ? "ДА" : "НЕТ"
-      }`
-    );
-    console.log(`Первые 6 символов: "${formattedName.substring(0, 6)}"`);
-
-    updateParameter(doc, "//parameter[@ID='31340']", formattedName); // Название (с &#032; в начале)
-    updateParameter(doc, "//parameter[@ID='31341']", brand.trim()); // Бренд
+    updateParameter(doc, "//parameter[@ID='105']", inn.trim());
+    updateParameter(doc, "//parameter[@ID='106']", street.trim());
+    updateParameter(doc, "//parameter[@ID='31340']", formattedName);
+    updateParameter(doc, "//parameter[@ID='31341']", formattedBrand);
 
     const updatedXml = doc.toString();
     const encodedXml = iconv.encode(updatedXml, "windows-1251");
@@ -63,18 +52,12 @@ function updateParameter(doc, selector, value) {
   }
 }
 
-function formatName(name) {
-  let formattedName = name.trim();
-
-  // Добавляем HTML-сущность &#032; как текст в начало строки
-  formattedName = "&#032;" + formattedName;
-
-  // Если длина с HTML-сущностью меньше или равна 23, добавляем центрирование
+function formatParams(param) {
+  let formattedName = param.trim();
   if (formattedName.length <= 23) {
     const paddingSize = Math.floor((24 - formattedName.length) / 2);
     formattedName = " ".repeat(paddingSize) + formattedName;
   }
-
   return formattedName;
 }
 
@@ -301,8 +284,6 @@ app.post("/api/searchgazprom", handleSearchGazprom);
 app.post("/api/sharedgazprom", handleSharedGazprom);
 app.post("/api/generationSoft", handleGenerationSoft);
 app.post("/api/sharedSoft", handleSharedSoft);
-
-// Тестовый endpoint для проверки подключения
 
 app.listen(PORT, () => {
   console.log(`Сервер запущен на порту ${PORT}`);
