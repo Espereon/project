@@ -19,6 +19,8 @@ interface FormData {
   locnumber: string;
   emitent: string;
 }
+const validateEmitent = (emitent: string) =>
+  ["2005", "2021", "3100", "3101", "3102", "2013"].includes(emitent);
 
 async function searchGazprom() {
   try {
@@ -26,7 +28,10 @@ async function searchGazprom() {
       responseMessage.value = "Не указан локальный номер или эмитент";
       return;
     }
-
+    if (!validateEmitent(formData.value.emitent)) {
+      responseMessage.value = "Данные введены некорректно!";
+      return;
+    }
     responseMessage.value = "Поиск файла...";
     console.log("Отправляем запрос:", formData.value);
 
@@ -34,14 +39,11 @@ async function searchGazprom() {
     console.log("Ответ сервера:", response.data);
 
     if (response.data.data) {
-      // Заполняем форму найденными данными
       formData.value.inn = response.data.data.inn || "";
       formData.value.street = response.data.data.street || "";
       formData.value.name = response.data.data.name || "";
       formData.value.brand = response.data.data.brand || "";
-
       responseMessage.value = response.data.message;
-      console.log("Форма заполнена данными:", formData.value);
     } else {
       responseMessage.value = response.data.message;
     }
@@ -49,13 +51,10 @@ async function searchGazprom() {
     console.error("Ошибка при поиске:", error);
 
     if (error.response) {
-      console.log("Статус ошибки:", error.response.status);
-      console.log("Данные ошибки:", error.response.data);
       responseMessage.value = `Ошибка: ${
         error.response.data.error || error.response.statusText
       }`;
     } else if (error.request) {
-      console.log("Запрос отправлен, но ответа нет");
       responseMessage.value = "Ошибка сети: сервер не отвечает";
     } else {
       console.log("Ошибка настройки запроса:", error.message);
@@ -70,7 +69,6 @@ async function sharedGazprom() {
       responseMessage.value = "Не указан локальный номер или эмитент";
       return;
     }
-
     responseMessage.value = "Копирование файла...";
     console.log("Отправляем запрос на копирование:", formData.value);
 
@@ -82,13 +80,10 @@ async function sharedGazprom() {
     console.error("Ошибка при копировании:", error);
 
     if (error.response) {
-      console.log("Статус ошибки:", error.response.status);
-      console.log("Данные ошибки:", error.response.data);
       responseMessage.value = `Ошибка: ${
         error.response.data.error || error.response.statusText
       }`;
     } else if (error.request) {
-      console.log("Запрос отправлен, но ответа нет");
       responseMessage.value = "Ошибка сети: сервер не отвечает";
     } else {
       console.log("Ошибка настройки запроса:", error.message);

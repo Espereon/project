@@ -19,6 +19,8 @@ interface FormData {
   locnumber: string;
   emitent: string;
 }
+const validateEmitent = (emitent: string) =>
+  ["2005", "2021", "3100", "3101", "3102", "2013"].includes(emitent);
 
 async function generationSoft() {
   try {
@@ -26,20 +28,16 @@ async function generationSoft() {
       responseMessage.value = "Не указан локальный номер или эмитент";
       return;
     }
-
+    if (!validateEmitent(formData.value.emitent)) {
+      responseMessage.value = "Данные введены некорректно!";
+      return;
+    }
     responseMessage.value = "Геренация ПО...";
-    console.log("Отправляем запрос на генерацию:", formData.value);
-
     const response = await axios.post("/api/generationSoft", formData.value);
-    console.log("Ответ сервера:", response.data);
-
     responseMessage.value = response.data.message;
   } catch (error: any) {
     console.error("Ошибка при генерации:", error);
-
     if (error.response) {
-      console.log("Статус ошибки:", error.response.status);
-      console.log("Данные ошибки:", error.response.data);
       responseMessage.value = `Ошибка: ${
         error.response.data.error || error.response.statusText
       }`;
@@ -71,16 +69,12 @@ async function sharedSoft() {
     console.error("Ошибка при копировании:", error);
 
     if (error.response) {
-      console.log("Статус ошибки:", error.response.status);
-      console.log("Данные ошибки:", error.response.data);
       responseMessage.value = `Ошибка: ${
         error.response.data.error || error.response.statusText
       }`;
     } else if (error.request) {
-      console.log("Запрос отправлен, но ответа нет");
       responseMessage.value = "Ошибка сети: сервер не отвечает";
     } else {
-      console.log("Ошибка настройки запроса:", error.message);
       responseMessage.value = `Ошибка: ${error.message}`;
     }
   }

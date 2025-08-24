@@ -12,13 +12,13 @@
           <parameter ID="105">
             <type>STRING</type>
             <length>48</length>
-            <value>1</value>
+            <value>4</value>
             <target index="0"/>
           </parameter>
           <parameter ID="106">
             <type>STRING</type>
             <length>48</length>
-            <value>1</value>
+            <value>4</value>
             <target index="1"/>
           </parameter>
           <parameter ID="23902">
@@ -30,13 +30,13 @@
           <parameter ID="31340">
             <type>STRING</type>
             <length>100</length>
-            <value>           1</value>
+            <value>           4</value>
             <target index="3"/>
           </parameter>
           <parameter ID="31341">
             <type>STRING</type>
             <length>100</length>
-            <value>           1</value>
+            <value>           4</value>
             <target index="4"/>
           </parameter>
         </pool>

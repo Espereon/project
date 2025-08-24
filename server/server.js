@@ -12,12 +12,19 @@ const PORT = 3001;
 app.use(cors());
 app.use(express.json());
 
-async function handleDataProcessing(req, res) {
+// Функция для форматирования локального номера с ведущими нулями
+function formatLocNumber(locnumber) {
+  return locnumber.toString().padStart(4, "0");
+}
+
+async function handleXmlEdit(req, res) {
   try {
     const { inn, street, name, brand, locnumber, emitent } = req.body;
 
     if (!locnumber || !emitent) {
-      return res.status(400).json({ error: "Отсутствуют обязательные поля" });
+      return res.status(400).json({
+        error: "Отсутствуют обязательные поля (локальный номер или эмитент)",
+      });
     }
 
     const buffer = await fs.readFile("./src/20050001.xml");
@@ -25,16 +32,24 @@ async function handleDataProcessing(req, res) {
     const doc = new DOMParser().parseFromString(originalXml, "application/xml");
     const formattedName = formatParams(name);
     const formattedBrand = formatParams(brand);
+    const formattedLocNumber = formatLocNumber(locnumber);
 
     updateParameter(doc, "//parameter[@ID='105']", inn.trim());
-    updateParameter(doc, "//parameter[@ID='106']", street.trim());
+    updateParameter(
+      doc,
+      "//parameter[@ID='106']",
+      street.trim().replace(/ё/g, "е")
+    );
     updateParameter(doc, "//parameter[@ID='31340']", formattedName);
     updateParameter(doc, "//parameter[@ID='31341']", formattedBrand);
 
     const updatedXml = doc.toString();
     const encodedXml = iconv.encode(updatedXml, "windows-1251");
 
-    await fs.writeFile(`./output/${emitent}${locnumber}.xml`, encodedXml);
+    await fs.writeFile(
+      `./output/${emitent}${formattedLocNumber}.xml`,
+      encodedXml
+    );
 
     res
       .status(200)
@@ -53,7 +68,7 @@ function updateParameter(doc, selector, value) {
 }
 
 function formatParams(param) {
-  let formattedName = param.trim();
+  let formattedName = param.trim().replace(/ё/g, "е");
   if (formattedName.length <= 23) {
     const paddingSize = Math.floor((24 - formattedName.length) / 2);
     formattedName = " ".repeat(paddingSize) + formattedName;
@@ -61,44 +76,36 @@ function formatParams(param) {
   return formattedName;
 }
 
-async function handleSharedRequest(req, res) {
+async function handleXmlShared(req, res) {
   try {
     const { locnumber, emitent } = req.body;
 
     if (!locnumber || !emitent) {
       return res
         .status(400)
-        .json({ error: "Отсутствует номер местоположения или эмитент" });
+        .json({ error: "Отсутствует локальный номер или эмитент" });
     }
 
-    const sourceFile = `${emitent}${locnumber}.xml`;
+    const formattedLocNumber = formatLocNumber(locnumber);
+    const sourceFile = `${emitent}${formattedLocNumber}.xml`;
     const sourceDirectory = "./output";
-    const destinationDirectory = "./copied_files";
+    const destinationDirectory = "./cs";
     const sourcePath = path.join(sourceDirectory, sourceFile);
     const destinationPath = path.join(destinationDirectory, sourceFile);
 
-    // Проверяем наличие исходного файла
     try {
-      await fs.access(sourcePath); // Проверяет доступ к файлу
-      // Файл существует
+      await fs.access(sourcePath);
     } catch (err) {
       if (err.code === "ENOENT") {
-        // Файл не найден
         return res.status(404).json({ error: "Источник не найден" });
       }
-      throw err; // Любые другие ошибки
+      throw err;
     }
-
-    // Создаем директорию назначения рекурсивно
-    await fs.mkdir(destinationDirectory, { recursive: true });
-
-    // Копируем файл
     await fs.copyFile(sourcePath, destinationPath);
-
     res.status(200).json({ message: "Файл успешно скопирован." });
   } catch (error) {
     console.error("Ошибка копирования файла:", error.message);
-    res.status(500).json({ error: "Ошибка обработки данных." });
+    res.status(500).json({ error: "Ошибка при копировании файла." });
   }
 }
 
@@ -112,19 +119,13 @@ async function handleSearchGazprom(req, res) {
         .json({ error: "Отсутствует локальный номер или эмитент" });
     }
 
-    const sourceFile = `${emitent}${locnumber}.xml`;
+    const formattedLocNumber = formatLocNumber(locnumber);
+    const sourceFile = `${emitent}${formattedLocNumber}.xml`;
     const sourceDirectory = "./gazprom";
     const sourcePath = path.join(sourceDirectory, sourceFile);
-
-    // Проверяем наличие исходного файла
-    await fs.access(sourcePath);
-
-    // Читаем файл и извлекаем параметры
     const buffer = await fs.readFile(sourcePath);
     const originalXml = iconv.decode(buffer, "windows-1251");
     const doc = new DOMParser().parseFromString(originalXml, "application/xml");
-
-    // Функция для извлечения параметра по ID
     function extractParameter(doc, selector) {
       const parameter = xpath.select1(selector, doc);
       if (parameter && parameter.getElementsByTagName("value")[0]) {
@@ -132,16 +133,12 @@ async function handleSearchGazprom(req, res) {
       }
       return "";
     }
-
-    // Извлекаем параметры из XML
     const inn = extractParameter(doc, "//parameter[@ID='105']");
     const street = extractParameter(doc, "//parameter[@ID='106']");
     const name = extractParameter(doc, "//parameter[@ID='31340']");
     const brand = extractParameter(doc, "//parameter[@ID='31341']");
-
-    // Возвращаем найденные данные
     res.status(200).json({
-      message: "Файл найден и параметры извлечены",
+      message: "Конфиг найден, данные извлечены",
       data: {
         inn: inn,
         street: street,
@@ -153,11 +150,10 @@ async function handleSearchGazprom(req, res) {
     });
   } catch (error) {
     if (error.code === "ENOENT") {
-      // Файл не найден
       return res.status(404).json({ error: "Источник не найден" });
     }
     console.error("Ошибка поиска файла:", error.message);
-    res.status(500).json({ error: "Ошибка обработки данных." });
+    res.status(500).json({ error: "Конфиг не найден" });
   }
 }
 
@@ -171,13 +167,13 @@ async function handleSharedGazprom(req, res) {
         .json({ error: "Отсутствует локальный номер или эмитент" });
     }
 
-    const sourceFile = `${emitent}${locnumber}.xml`;
+    const formattedLocNumber = formatLocNumber(locnumber);
+    const sourceFile = `${emitent}${formattedLocNumber}.xml`;
     const sourceDirectory = "./gazprom";
-    const destinationDirectory = "./copied_files";
+    const destinationDirectory = "./cs";
     const sourcePath = path.join(sourceDirectory, sourceFile);
     const destinationPath = path.join(destinationDirectory, sourceFile);
 
-    // Проверяем наличие исходного файла
     try {
       await fs.access(sourcePath);
     } catch (err) {
@@ -188,7 +184,7 @@ async function handleSharedGazprom(req, res) {
     }
     await fs.copyFile(sourcePath, destinationPath);
 
-    res.status(200).json({ message: "Файл успешно скопирован." });
+    res.status(200).json({ message: "Конфиг успешно скопирован." });
   } catch (error) {
     console.error("Ошибка копирования файла:", error.message);
     res.status(500).json({ error: "Ошибка обработки данных." });
@@ -204,6 +200,7 @@ async function handleGenerationSoft(req, res) {
         .status(400)
         .json({ error: "Отсутствует локальный номер или эмитент" });
     }
+    const formattedLocNumber = formatLocNumber(locnumber);
     const sourceFile = "soft.xml";
     const sourceFolder = "./soft";
     const sourceDirectory = "./src";
@@ -212,11 +209,11 @@ async function handleGenerationSoft(req, res) {
     const sourcePathFolder = path.join(sourceDirectory, sourceFolder);
     const destinationPathXml = path.join(
       destinationDirectory,
-      `${emitent}${locnumber}s.xml`
+      `${emitent}${formattedLocNumber}s.xml`
     );
     const destinationPathFolder = path.join(
       destinationDirectory,
-      `${emitent}${locnumber}s`
+      `${emitent}${formattedLocNumber}s`
     );
     try {
       await fs.access(sourcePath);
@@ -227,17 +224,12 @@ async function handleGenerationSoft(req, res) {
       }
       throw err;
     }
-
-    // Копируем XML файл
     await fs.copyFile(sourcePath, destinationPathXml);
-
-    // Копируем папку с новым названием
     await fs.cp(sourcePathFolder, destinationPathFolder, { recursive: true });
-
-    res.status(200).json({ message: "Файл и папка успешно сгенерированы" });
+    res.status(200).json({ message: "ПО успешно сгенерировано" });
   } catch (error) {
-    console.error("Ошибка копирования файла:", error.message);
-    res.status(500).json({ error: "Ошибка обработки данных." });
+    console.error("Ошибка обработки данных:", error.message);
+    res.status(500).json({ error: "Ошибка генерации ПО" });
   }
 }
 
@@ -250,8 +242,9 @@ async function handleSharedSoft(req, res) {
         .status(400)
         .json({ error: "Отсутствует локальный номер или эмитент" });
     }
-    const sourceFile = `${emitent}${locnumber}s.xml`;
-    const sourceFolder = `${emitent}${locnumber}s`;
+    const formattedLocNumber = formatLocNumber(locnumber);
+    const sourceFile = `${emitent}${formattedLocNumber}s.xml`;
+    const sourceFolder = `${emitent}${formattedLocNumber}s`;
     const sourceDirectory = "./output_soft";
     const destinationDirectory = "./cs";
     const sourcePath = path.join(sourceDirectory, sourceFile);
@@ -278,8 +271,8 @@ async function handleSharedSoft(req, res) {
   }
 }
 
-app.post("/api/data", handleDataProcessing);
-app.post("/api/shared", handleSharedRequest);
+app.post("/api/data", handleXmlEdit);
+app.post("/api/shared", handleXmlShared);
 app.post("/api/searchgazprom", handleSearchGazprom);
 app.post("/api/sharedgazprom", handleSharedGazprom);
 app.post("/api/generationSoft", handleGenerationSoft);
